@@ -6,10 +6,7 @@ import com.observability.opentelemetry.service.StockService
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import java.math.BigDecimal
 
 @RestController
@@ -23,7 +20,7 @@ class ProductController(
     }
 
     @GetMapping
-    fun getAllProducts(): ResponseEntity<List<Product>> {
+    fun getAllProducts(@RequestHeader(name = "correlationId", required = false) correlationId: String?): ResponseEntity<List<Product>> {
         logger.info("M=getAllProducts, stage=init")
         val productList = listOf(
             Product(1, "Teclado", BigDecimal(10)),
@@ -39,7 +36,10 @@ class ProductController(
     }
 
     @GetMapping("/{productId}")
-    fun getProduct(@PathVariable productId: Int): ResponseEntity<ProductStock> {
+    fun getProduct(
+        @PathVariable productId: Int,
+        @RequestHeader(name = "correlationId", required = false) correlationId: String?
+    ): ResponseEntity<ProductStock> {
         logger.info("M=getProduct, stage=init, productId=${productId}")
         val stock = stockService.getStock(productId)
         val productStock = ProductStock(
